@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class MahasiswaControllers extends Controller
 {
@@ -14,7 +16,7 @@ class MahasiswaControllers extends Controller
     public function index()
     {
         $mhs = Mahasiswa::latest()->paginate(5);
-        return view ('mhs.index',compact('mhs'))->with('i', (request()->input('page', 1) -1) * 5);
+        return view ('index',compact('mhs'))->with('i', (request()->input('page', 1) -1) * 5);
     }
 
     /**
@@ -25,6 +27,7 @@ class MahasiswaControllers extends Controller
     public function create()
     {
         //
+        return view('create');
     }
 
     /**
@@ -36,6 +39,19 @@ class MahasiswaControllers extends Controller
     public function store(Request $request)
     {
         //
+        $request->validate([
+            'nim' => 'required',
+            'nama' => 'required',
+            'jenis_kelamin' => 'required',
+            'alamat' => 'required',
+            'prodi' => 'required',
+            'semester' => 'required',
+            'kelas' => 'required',
+            'tahun_angkatan' => 'required',
+        ]);
+        Mahasiswa::create($request->all());
+
+        return redirect()->route('index')->with('succes','Data Berhasil di Input');
     }
 
     /**
@@ -44,9 +60,9 @@ class MahasiswaControllers extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Mahasiswa $mhs)
     {
-        //
+        return view('show',compact('mhs'));
     }
 
     /**
@@ -55,9 +71,9 @@ class MahasiswaControllers extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Mahasiswa $mhs)
     {
-        //
+        return view('edit', compact('mhs'));
     }
 
     /**
@@ -67,9 +83,22 @@ class MahasiswaControllers extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Siswa $sisw)
     {
-        //
+        $request->validate([
+            'nim' => 'required',
+            'nama' => 'required',
+            'jenis_kelamin' => 'required',
+            'alamat' => 'required',
+            'prodi' => 'required',
+            'semester' => 'required',
+            'kelas' => 'required',
+            'tahun_angkatan' => 'required',
+        ]);
+
+        $mhs->update($request->all());
+
+        return redirect()->route('index')->with('succes','Data Mahasiswa Berhasil di Update');
     }
 
     /**
@@ -80,6 +109,8 @@ class MahasiswaControllers extends Controller
      */
     public function destroy($id)
     {
-        //
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        $mahasiswa->delete();
+        return redirect()->route('index')->with('succes','Data Mahasiswa Berhasil di Hapus');
     }
 }
